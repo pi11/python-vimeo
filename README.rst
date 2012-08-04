@@ -37,7 +37,7 @@ The client instance can then be used to fetch or modify resources: ::
 Authentication
 --------------
 
-All `OAuth2 authorization flows`_ supported by the Vimeo API are
+All `OAuth authorization flows`_ supported by the Vimeo API are
 available in python-vimeo. If you only need read-only access to
 public resources, go for basic use method as shown above. If however,
 you need to access private resources or modify a resource,
@@ -71,3 +71,4 @@ pass the token verifier: ::
     access_token = token.key
     access_token_secret = token.secret
 
+.. _`OAuth authorization flows`: https://developer.vimeo.com/apis/advanced#oauth
