@@ -72,3 +72,25 @@ pass the token verifier: ::
     access_token_secret = token.secret
 
 .. _`OAuth authorization flows`: https://developer.vimeo.com/apis/advanced#oauth
+
+Examples
+--------
+
+Get user's Authorization: ::
+
+    import vimeo
+
+    client = vimeo.Client(key=YOUR_CONSUMER_KEY, secret=YOUR_CONSUMER_SECRET, callback=YOUR_CALLBACK_URL, username='LOGGED IN USERNAME')
+    redirect(client.authorize_url())
+
+Get the authenticated user's uploaded videos: ::
+
+    import vimeo
+
+    client = vimeo.Client(key=YOUR_CONSUMER_KEY, secret=YOUR_CONSUMER_SECRET, callback=YOUR_CALLBACK_URL, username='LOGGED IN USERNAME')
+    token = client.exchange_token('TOKEN_VERIFIER_FROM_THE_REDIRECTED_URL')
+    client = vimeo.Client(key=YOUR_CONSUMER_KEY, secret=YOUR_CONSUMER_SECRET, callback=YOUR_CALLBACK_URL, username='LOGGED IN USERNAME', token=True)
+    videos = client.get('vimeo.videos.getUploaded', page=1)
+
+
+    
