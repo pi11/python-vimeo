@@ -1,5 +1,4 @@
-
-m distutils.core import setup
+from distutils.core import setup
 
 setup(
     name='vimeo',
@@ -8,10 +7,10 @@ setup(
     author_email='rkumarnirmal@gmail.com',
     packages=['vimeo'],
     scripts=['vimeo/client.py'],
-    url='http://pypi.python.org/pypi/vimeo/',
+    url='https://github.com/rkumarnirmal/python-vimeo',
     license='LICENSE.txt',
     description='Python module for using Vimeo API.',
-    long_description=open('README.txt').read(),
+    long_description=open('README').read(),
     install_requires=[
         "requests == 0.13.1",
         "simplejson >= 2.1.6",
