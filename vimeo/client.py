@@ -2,6 +2,8 @@ import os
 import requests
 import simplejson
 import pickle
+import urlparse
+from urllib import urlencode
 import oauth2 as oauth
 
 REQUEST_TOKEN_URL = 'http://vimeo.com/oauth/request_token'
@@ -35,10 +37,12 @@ class Client(object):
 	# decide which protocol flow to follow based on the token value
         # provided by the caller.
 	if self._options_for_authorization_flow_present():
-	    if not self.token_check:
-	        self._authorization_flow()
-	    elif self.token_check:
+	    if self.token_check == True:
 	        self._access_token_flow()
+	    elif self.token_check == False:
+	        pass
+	    else:
+	        self._authorization_flow()
 
     def _authorization_flow(self):
 	"""Given the values, get the request token."""
