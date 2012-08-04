@@ -87,9 +87,9 @@ Get the authenticated user's uploaded videos: ::
 
     import vimeo
 
-    client = vimeo.Client(key=YOUR_CONSUMER_KEY, secret=YOUR_CONSUMER_SECRET, callback=YOUR_CALLBACK_URL, username='LOGGED IN USERNAME', token=False)
+    client = vimeo.Client(key=YOUR_CONSUMER_KEY, secret=YOUR_CONSUMER_SECRET, callback=YOUR_CALLBACK_URL, username='LOGGED_IN_USERNAME', token=False)
     token = client.exchange_token('TOKEN_VERIFIER_FROM_THE_REDIRECTED_URL')
-    client = vimeo.Client(key=YOUR_CONSUMER_KEY, secret=YOUR_CONSUMER_SECRET, callback=YOUR_CALLBACK_URL, username='LOGGED IN USERNAME', token=True)
+    client = vimeo.Client(key=YOUR_CONSUMER_KEY, secret=YOUR_CONSUMER_SECRET, callback=YOUR_CALLBACK_URL, username='LOGGED_IN_USERNAME', token=True)
     videos = client.get('vimeo.videos.getUploaded', page=1)
 
 
