@@ -46,38 +46,8 @@ class Client(object):
 	    elif self.token_check:
 	        self._access_token_flow()
 
-
-    def _access_token_flow(self):
-	f = open(self._get_cache_token_filename(), "r")
-	file_content = f.read()
-	f.close()
-	file_content_parsed = file_content.split('!***!')
-	self.key = file_content_parsed[0]
-	self.secret = file_content_parsed[1]
-	self.access_token = file_content_parsed[2]
-	self.access_token_secret = file_content_parsed[3]
-	self.callback = file_content_parsed[4]
-	self.consumer = oauth.Consumer(key=self.key, secret=self.secret)
-	self.token = oauth.Token(key=self.access_token, secret=self.access_token_secret)
-	self.client = oauth.Client(self.consumer, self.token)
-	self.check = file_content_parsed
-
-    def exchange_token(self, verifier):
-        """Given the value of the verifier, request an access token."""
-        
-	f = open(self._get_cache_token_filename(), "r")
-	self.token = pickle.load(f)
-	f.close()
-	self.token.set_verifier(verifier)
-        self.client = oauth.Client(self.consumer, self.token)
-	self._get_new_token(ACCESS_TOKEN_URL)
-	file_content = self.key+"!***!"+self.secret+"!***!"+self.token.key+"!***!"+self.token.secret+"!***!"+self.callback
-	f = open(self._get_cache_token_filename(), "w")
-	f.write(file_content)
-	f.close()
-	return self.token
-      
     def _authorization_flow(self):
+	"""Given the values, get the request token."""
 	self.client = oauth.Client(self.consumer)
 	self._get_new_token(REQUEST_TOKEN_URL)
 
@@ -90,10 +60,40 @@ class Client(object):
 	f.close()
 
     def authorize_url(self, permission="read"):
-        """Return the authorization URL for OAuth2 authorization code flow."""
+        """Build the authorization URL and return for OAuth2 authorization code flow."""
 	if not self.token:
 	    self._authorization_flow()
         return "{0}?oauth_token={1}&permission={2}". format(AUTHORIZATION_URL, self.token.key, permission)
+
+    def _access_token_flow(self):
+	"""Fetch the auth informations from the cache and store the values."""
+	f = open(self._get_cache_token_filename(), "r")
+	file_content = f.read()
+	f.close()
+	file_content_parsed = file_content.split('!***!')
+	self.key = file_content_parsed[0]
+	self.secret = file_content_parsed[1]
+	self.access_token = file_content_parsed[2]
+	self.access_token_secret = file_content_parsed[3]
+	self.callback = file_content_parsed[4]
+	self.consumer = oauth.Consumer(key=self.key, secret=self.secret)
+	self.token = oauth.Token(key=self.access_token, secret=self.access_token_secret)
+	self.client = oauth.Client(self.consumer, self.token)
+
+    def exchange_token(self, verifier):
+        """Given the value of the verifier and request token info, request an access token."""
+        
+	f = open(self._get_cache_token_filename(), "r")
+	self.token = pickle.load(f)
+	f.close()
+	self.token.set_verifier(verifier)
+        self.client = oauth.Client(self.consumer, self.token)
+	self._get_new_token(ACCESS_TOKEN_URL)
+	file_content = self.key+"!***!"+self.secret+"!***!"+self.token.key+"!***!"+self.token.secret+"!***!"+self.callback
+	f = open(self._get_cache_token_filename(), "w")
+	f.write(file_content)
+	f.close()
+	return self.token
 
     def _is_success(self, headers):
 	"""Check if the response status is success, if not then raise the VimeoError"""
@@ -109,8 +109,7 @@ class Client(object):
 	return True
 
     def _get_new_token(self, request_url):
-        """Build the the auth URL so the user can authorize the app."""
-	
+
 	resp, content = self.client.request(request_url, "POST", body=urlencode({'oauth_callback': self.callback}))
 
 	if self._is_success(resp):
