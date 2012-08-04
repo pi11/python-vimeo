@@ -1,4 +1,5 @@
 *.py~
 *.pyc
 *.rst~
+*.swp
 *.egg-info
