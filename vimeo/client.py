@@ -18,38 +18,34 @@ class Client(object):
     """A client for interacting with Vimeo resources."""
     
     def __init__(self, **kwargs):
-        """Create a client instance with the provided options. Options shou        ld be passed in as kwargs."""
+        """Create a client instance with the provided options. Options should be passed in as kwargs."""
 	
         self.options = kwargs
-
 	self.key = kwargs.get('key')
 	self.secret = kwargs.get('secret')
 	self.callback = kwargs.get('callback')
 	self.username = kwargs.get('username')
-	self.token = None
-	self._authorize_url = None
-	self.request_token = None
+	self.token_check = kwargs.get('token')
 	self.access_token = None
+	self.access_token_secret = None
+	self._authorize_url = None
 	self.consumer = None
+	self.token = None
 	self.client = None
-	self.check = None
 
-	if 'key' not in kwargs:
-		raise TypeError("Key must be provided.")
-
-	if 'username' not in kwargs:
-		raise TypeError("Username must be provided.")
+	if 'key' and 'secret' in kwargs:
+	    self.consumer = oauth.Consumer(key=self.key, secret=self.secret) 
 	
 	self.path = os.path.join("~", ".flickr")
 
-
-	# decide which protocol flow to follow based on the arguments
+	# decide which protocol flow to follow based on the token value
         # provided by the caller.
 	if self._options_for_authorization_flow_present():
-            self._authorization_flow()
-	else:
-	    self.check = "else"
-	    self._access_token_flow()
+	    if not self.token_check:
+	        self._authorization_flow()
+	    elif self.token_check:
+	        self._access_token_flow()
+
 
     def _access_token_flow(self):
 	f = open(self._get_cache_token_filename(), "r")
@@ -58,11 +54,11 @@ class Client(object):
 	file_content_parsed = file_content.split('!***!')
 	self.key = file_content_parsed[0]
 	self.secret = file_content_parsed[1]
-	self.token = file_content_parsed[2]
-	self.token_secret = file_content_parsed[3]
+	self.access_token = file_content_parsed[2]
+	self.access_token_secret = file_content_parsed[3]
 	self.callback = file_content_parsed[4]
 	self.consumer = oauth.Consumer(key=self.key, secret=self.secret)
-	self.token = oauth.Token(key=self.token, secret=self.token_secret)
+	self.token = oauth.Token(key=self.access_token, secret=self.access_token_secret)
 	self.client = oauth.Client(self.consumer, self.token)
 	self.check = file_content_parsed
 
@@ -79,9 +75,9 @@ class Client(object):
 	f = open(self._get_cache_token_filename(), "w")
 	f.write(file_content)
 	f.close()
+	return self.token
       
     def _authorization_flow(self):
-	self.consumer = oauth.Consumer(key=self.key, secret=self.secret)
 	self.client = oauth.Client(self.consumer)
 	self._get_new_token(REQUEST_TOKEN_URL)
 
@@ -100,6 +96,7 @@ class Client(object):
         return "{0}?oauth_token={1}&permission={2}". format(AUTHORIZATION_URL, self.token.key, permission)
 
     def _is_success(self, headers):
+	"""Check if the response status is success, if not then raise the VimeoError"""
 	try:
 	    status = headers["status"]
 	except KeyError:
@@ -121,17 +118,20 @@ class Client(object):
 	    self.token = oauth.Token(new_token["oauth_token"], new_token["oauth_token_secret"])
 	    self.client = oauth.Client(self.consumer, self.token)
 
-    def get(self, method, page):
-        url = 'http://vimeo.com/api/rest/v2?format=json&method='+method+'&page='+str(page)+'&full_response=1'
-	request = oauth.Request.from_consumer_and_token(consumer=self.consumer, token=self.token, http_method="GET", http_url=url)
+    def get(self, method, **kwargs):
+	"""Request the URL with the given method for fetching the contents from Vimeo"""
+	page = kwargs.get('page')
+	per_page = kwargs.get('per_page')
+	user_id = kwargs.get('user_id')
+        url = 'http://vimeo.com/api/rest/v2?format=json&method='+method+'&full_response=1'
+	for k in kwargs:
+	    url = url+'&'+k+'='+str(kwargs.get(k))
+	request = oauth.Request.from_consumer_and_token(consumer=self.consumer, token=self.token, http_method="POST", http_url=url)
 	request.update({'oauth_callback': self.callback})
 	signature_method = oauth.SignatureMethod_HMAC_SHA1()
 	request.sign_request(signature_method, self.consumer, self.token)
-	header_list = []
-	for k,v in request.items():
-	    header_list.append(k + '=' + v + '')
-	headers = {'Authorization': ','.join(header_list)}
-	r = requests.get(url, headers=headers)
+	headers = request.to_header()
+	r = requests.post(url, headers=headers)
 	if self._is_success(simplejson.loads(r.text)):
 	    return r.text
 
@@ -144,9 +144,7 @@ class Client(object):
 	filename = 'auth-%s.info' % self.username
 	return os.path.join(self._get_cache_token_path(), filename)
 
-
     # Helper functions for testing arguments provided to the constructor.
-
     def _options_present(self, options, kwargs):
         return all(map(lambda k: k in kwargs, options))
 
