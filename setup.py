@@ -2,18 +2,19 @@
 m distutils.core import setup
 
 setup(
-    name='TowelStuff',
+    name='vimeo',
     version='0.1.0',
-    author='J. Random Hacker',
-    author_email='jrh@example.com',
-    packages=['towelstuff', 'towelstuff.test'],
-    scripts=['bin/stowe-towels.py','bin/wash-towels.py'],
-    url='http://pypi.python.org/pypi/TowelStuff/',
+    author='Nirmal Kumar',
+    author_email='rkumarnirmal@gmail.com',
+    packages=['vimeo'],
+    scripts=['vimeo/client.py'],
+    url='http://pypi.python.org/pypi/vimeo/',
     license='LICENSE.txt',
-    description='Useful towel-related stuff.',
+    description='Python module for using Vimeo API.',
     long_description=open('README.txt').read(),
     install_requires=[
         "requests == 0.13.1",
-        "caldav == 0.1.4",
+        "simplejson >= 2.1.6",
+	"oauth2 >= 1.5.170",
     ],
 )
