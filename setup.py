@@ -9,7 +9,7 @@ setup(
     scripts=['vimeo/client.py'],
     url='https://github.com/rkumarnirmal/python-vimeo',
     license='MIT',
-    packages=['vimeo']
+    packages=['vimeo'],
     description='Python module for using Vimeo API.',
     install_requires=[
         "requests == 0.13.1",
