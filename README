@@ -1,1 +1,8 @@
-This a python module for using Vimeo's API.
+=================
+python-vimeo
+=================
+
+A friendly wrapper around the `Vimeo API`_.
+
+.. _Vimeo API: http://developer.vimeo.com/
+
