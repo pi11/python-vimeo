@@ -1,12 +1,6 @@
 import os
 import requests
-import random
-import hmac
-import time
 import simplejson
-import string
-from urllib import urlencode
-import urlparse
 import pickle
 import oauth2 as oauth
 
