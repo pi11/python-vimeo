@@ -33,6 +33,6 @@ setup(
     install_requires=[
         "requests == 0.13.1",
         "simplejson >= 2.1.6",
-	"oauth2 >= 1.5.170",
+	    "oauth2 >= 1.5.170",
     ]
 )

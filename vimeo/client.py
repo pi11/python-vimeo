@@ -12,10 +12,10 @@ AUTHORIZATION_URL = 'http://vimeo.com/oauth/authorize'
 
 class Client(object):
     """A client for interacting with Vimeo resources."""
-    
+
     def __init__(self, **kwargs):
         """Create a client instance with the provided options. Options should be passed in as kwargs."""
-	
+
         self.options = kwargs
 	self.key = kwargs.get('key')
 	self.secret = kwargs.get('secret')
@@ -30,9 +30,9 @@ class Client(object):
 	self.client = None
 
 	if 'key' and 'secret' in kwargs:
-	    self.consumer = oauth.Consumer(key=self.key, secret=self.secret) 
-	
-	self.path = os.path.join("~", ".flickr")
+	    self.consumer = oauth.Consumer(key=self.key, secret=self.secret)
+
+	self.path = os.path.join("~", ".vimeo")
 
 	# decide which protocol flow to follow based on the token value
         # provided by the caller.
@@ -80,7 +80,7 @@ class Client(object):
 
     def exchange_token(self, verifier):
         """Given the value of the verifier and request token info, request an access token."""
-        
+
 	f = open(self._get_cache_token_filename(), "r")
 	self.token = pickle.load(f)
 	f.close()
@@ -154,4 +154,4 @@ class VimeoError(Exception):
     Exception raised by non-API call errors.
     """
     pass
-	
+
