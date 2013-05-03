@@ -23,8 +23,8 @@ class Client(object):
         self.callback = kwargs.get('callback')
         self.username = kwargs.get('username')
         self.token_check = kwargs.get('token')
-        self.access_token = None
-        self.access_token_secret = None
+        self.access_token = kwargs.get('access_token')# None
+        self.access_token_secret = kwargs.get('access_token_secret') #None
         self._authorize_url = None
         self.consumer = None
         self.token = None
@@ -37,13 +37,16 @@ class Client(object):
 
         # decide which protocol flow to follow based on the token value
         # provided by the caller.
-        if self._options_for_authorization_flow_present():
-            if self.token_check == True:
-                self._access_token_flow()
-            elif self.token_check == False:
-                pass
-            else:
-                self._authorization_flow()
+        if self.access_token and self.access_token_secret:
+            self._secret_access_token_flow()
+        else:
+            if self._options_for_authorization_flow_present():
+                if self.token_check == True:
+                    self._access_token_flow()
+                elif self.token_check == False:
+                    pass
+                else:
+                    self._authorization_flow()
 
     def _authorization_flow(self):
         """Given the values, get the request token."""
@@ -78,6 +81,13 @@ class Client(object):
         self.access_token = file_content_parsed[2]
         self.access_token_secret = file_content_parsed[3]
         self.callback = file_content_parsed[4]
+        self.consumer = oauth.Consumer(key=self.key, secret=self.secret)
+        self.token = oauth.Token(key=self.access_token, secret=self.access_token_secret)
+        self.client = oauth.Client(self.consumer, self.token)
+
+    def _secret_access_token_flow(self):
+        """Fetch the auth informations from arguments"""
+
         self.consumer = oauth.Consumer(key=self.key, secret=self.secret)
         self.token = oauth.Token(key=self.access_token, secret=self.access_token_secret)
         self.client = oauth.Client(self.consumer, self.token)
